@@ -28,80 +28,73 @@ public class ReadWriteLockDemo {
   }
 
   private static void testStarvation(String description, ReadWriteLock rwlock) throws InterruptedException {
-    System.out.println(description);
-    AtomicBoolean written = new AtomicBoolean(false);
-    Runnable readTask = () -> {
-      for (int i = 0; i < 10 && !written.get(); i++) {
-        rwlock.readLock().lock();
-        try {
-          sleepQuietly(1000);
-        } finally {
-          rwlock.readLock().unlock();
-        }
-      }
-    };
-    Runnable writeTask = () -> {
-      long time = System.nanoTime();
-      try {
-        rwlock.writeLock().lock();
-        try {
-          System.out.println("Got write lock");
-        } finally {
-          rwlock.writeLock().unlock();
-        }
-        written.set(true);
-      } finally {
-        time = System.nanoTime() - time;
-        System.out.printf("time = %dms%n", (time / 1_000_000));
-      }
-    };
+    testStarvation(description, () -> readWithRWLock(rwlock),
+        () -> writeWithRWLock(rwlock));
+  }
 
-    Thread readThread1 = new Thread(readTask);
-    readThread1.start();
-    sleepQuietly(500);
-    Thread readThread2 = new Thread(readTask);
-    readThread2.start();
+  private static void writeWithRWLock(ReadWriteLock rwlock) {
+    rwlock.writeLock().lock();
+    try {
+      System.out.println("Got write lock");
+    } finally {
+      rwlock.writeLock().unlock();
+    }
+  }
 
-    Thread writeThread = new Thread(writeTask);
-    writeThread.start();
-
-    readThread1.join();
-    readThread2.join();
-    writeThread.join();
+  private static void readWithRWLock(ReadWriteLock rwlock) {
+    rwlock.readLock().lock();
+    try {
+      sleepQuietly(1000);
+    } finally {
+      rwlock.readLock().unlock();
+    }
   }
 
   private static void testStarvation(String description, StampedLock sl) throws InterruptedException {
+    testStarvation(description, () -> readWithStampedLock(sl),
+        () -> writeWithStampedLock(sl));
+  }
+
+  private static void writeWithStampedLock(StampedLock sl) {
+    long stamp = sl.writeLock();
+    try {
+      System.out.println("Got write lock");
+    } finally {
+      sl.unlockWrite(stamp);
+    }
+  }
+
+  private static void readWithStampedLock(StampedLock sl) {
+    long stamp = sl.tryOptimisticRead();
+    try {
+      retryHoldingLock:
+      for (; ; stamp = sl.readLock()) {
+        // possibly racy reads
+        sleepQuietly(1000);
+        if (!sl.validate(stamp)) {
+          System.out.println("Failed validate");
+          continue retryHoldingLock;
+        }
+        return;
+      }
+    } finally {
+      if (StampedLock.isReadLockStamp(stamp))
+        sl.unlockRead(stamp);
+    }
+  }
+
+  private static void testStarvation(String description, Runnable read, Runnable write) throws InterruptedException {
     System.out.println(description);
     AtomicBoolean written = new AtomicBoolean(false);
     Runnable readTask = () -> {
       for (int i = 0; i < 10 && !written.get(); i++) {
-        long stamp = sl.tryOptimisticRead();
-        try {
-          retryHoldingLock:
-          for (; ; stamp = sl.readLock()) {
-            // possibly racy reads
-            sleepQuietly(1000);
-            if (!sl.validate(stamp)) {
-              System.out.println("Failed validate");
-              continue retryHoldingLock;
-            }
-            return;
-          }
-        } finally {
-          if (StampedLock.isReadLockStamp(stamp))
-            sl.unlockRead(stamp);
-        }
+        read.run();
       }
     };
     Runnable writeTask = () -> {
       long time = System.nanoTime();
       try {
-        long stamp = sl.writeLock();
-        try {
-          System.out.println("Got write lock");
-        } finally {
-          sl.unlockWrite(stamp);
-        }
+        write.run();
         written.set(true);
       } finally {
         time = System.nanoTime() - time;
