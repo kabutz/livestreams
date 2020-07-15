@@ -29,7 +29,7 @@ public class SillyNumberPuzzle {
     }
   }
 
-  private static boolean check(int[] guesses, int whites, int reds, int... previous) {
+  public static boolean check(int[] guesses, int whites, int reds, int... previous) {
     for (int i = 0; i < guesses.length; i++) {
       for (int j = 0; j < previous.length; j++) {
         if (guesses[i] == previous[j]) {
