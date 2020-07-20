@@ -63,7 +63,7 @@ Request timeout for icmp_seq 26
 64 bytes from 8.8.8.8: icmp_seq=61 ttl=117 time=36.498 ms
 64 bytes from 8.8.8.8: icmp_seq=62 ttl=117 time=28.692 ms
 64 bytes from 8.8.8.8: icmp_seq=63 ttl=117 time=28.388 ms
-^[[A64 bytes from 8.8.8.8: icmp_seq=64 ttl=117 time=28.555 ms
+64 bytes from 8.8.8.8: icmp_seq=64 ttl=117 time=28.555 ms
 64 bytes from 8.8.8.8: icmp_seq=65 ttl=117 time=28.769 ms
 64 bytes from 8.8.8.8: icmp_seq=66 ttl=117 time=35.025 ms
 64 bytes from 8.8.8.8: icmp_seq=67 ttl=117 time=31.286 ms
