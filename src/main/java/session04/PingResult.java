@@ -15,6 +15,7 @@ public abstract class PingResult {
   }
 
   public abstract PingResult success(int seq, double time);
+
   public abstract PingResult timeout(int seq);
 
 
@@ -32,7 +33,11 @@ public abstract class PingResult {
 
   public String toString() {
     return "[" + start + ", " + end + "] " +
-        Duration.ofSeconds(duration());
+        (Duration.ofSeconds(duration()).toString()
+            .replaceAll("PT", "")
+            .replaceAll("H", "h")
+            .replaceAll("M", "m")
+            .replaceAll("S", "s"));
   }
 
   public int duration() {
@@ -40,6 +45,17 @@ public abstract class PingResult {
   }
 
   protected void endSeq(int seq) {
-    this.end = new SequenceNumber(seq);
+    endSeq(new SequenceNumber(seq));
+  }
+
+  protected void endSeq(SequenceNumber seq) {
+    this.end = seq;
+  }
+
+  protected SequenceNumber startSeq() {
+    return start;
+  }
+  protected SequenceNumber endSeq() {
+    return end;
   }
 }
