@@ -15,6 +15,8 @@ public class FactorialPuzzle {
     try {
       BigInteger fact200k = factorial(200_000);
       System.out.println("fact200k.bitLength() = " + fact200k.bitLength());
+      if (fact200k.bitLength() != 3521929)
+        throw new AssertionError("Incorrect result");
     } finally {
       time = System.nanoTime() - time;
       System.out.printf("time = %dms%n", (time / 1_000_000));
