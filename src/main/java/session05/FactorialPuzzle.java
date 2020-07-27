@@ -1,14 +1,38 @@
 package session05;
 
+import java.lang.management.*;
 import java.math.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.*;
 
 public class FactorialPuzzle {
-  private static final Factorial factorial = new FactorialRecursiveDecomposition();
+  private static final Factorial factorial =
+      new FactorialRecursiveDecompositionParallel();
 
   public static void main(String... args) {
-    for (int i = 0; i < 10; i++) {
-      test();
+    long elapsedTime = System.nanoTime();
+    try {
+      for (int i = 0; i < 10; i++) {
+        test();
+      }
+    } finally {
+      elapsedTime = System.nanoTime() - elapsedTime;
+      System.out.printf("elapsedTime = %dms%n", (elapsedTime / 1_000_000));
     }
+    ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
+    Set<Thread> workerThreads =
+        IntStream.range(0, ForkJoinPool.getCommonPoolParallelism() * 2)
+            .parallel()
+            .mapToObj(i -> Thread.currentThread())
+            .collect(Collectors.toSet());
+    long totalUserTime = workerThreads.stream()
+        .mapToLong(Thread::getId)
+        .map(tmb::getThreadUserTime)
+        .sum();
+
+    System.out.printf("elapsed=%d, user=%d, parallelism=%.2f%n",
+        elapsedTime, totalUserTime, ((double) totalUserTime ) / elapsedTime);
   }
 
   private static void test() {
