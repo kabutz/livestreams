@@ -7,7 +7,7 @@ public class FactorialRecursiveDecomposition implements Factorial {
     return f(0, n);
   }
 
-  private BigInteger f(int from, int to) {
+  BigInteger f(int from, int to) {
     if (from == to) {
       return from == 0 ? BigInteger.ONE : BigInteger.valueOf(from);
     }

@@ -8,7 +8,7 @@ import java.util.stream.*;
 
 public class FactorialPuzzle {
   private static final Factorial factorial =
-      new FactorialRecursiveCompletableFuturesParallel();
+      new FactorialRecursiveCompletableFuturesParallelHybrid();
 
   public static void main(String... args) {
     System.out.println(factorial.getClass());
