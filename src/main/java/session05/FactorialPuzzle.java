@@ -3,7 +3,7 @@ package session05;
 import java.math.*;
 
 public class FactorialPuzzle {
-  private static final Factorial factorial = new FactorialParallelStream();
+  private static final Factorial factorial = new FactorialRecursiveDecomposition();
 
   public static void main(String... args) {
     for (int i = 0; i < 10; i++) {
@@ -16,7 +16,7 @@ public class FactorialPuzzle {
     try {
       BigInteger fact200k = factorial.f(200_000);
       System.out.println("fact200k.bitLength() = " + fact200k.bitLength());
-      if (fact200k.bitLength() != 3521929)
+      if (fact200k.bitLength() != 3233400)
         throw new AssertionError("Incorrect result");
     } finally {
       time = System.nanoTime() - time;
