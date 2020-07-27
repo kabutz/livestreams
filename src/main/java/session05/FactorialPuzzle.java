@@ -8,9 +8,10 @@ import java.util.stream.*;
 
 public class FactorialPuzzle {
   private static final Factorial factorial =
-      new FactorialRecursiveCompletableFutures();
+      new FactorialRecursiveCompletableFuturesParallel();
 
   public static void main(String... args) {
+    System.out.println(factorial.getClass());
     long elapsedTime = System.nanoTime();
     try {
       for (int i = 0; i < 10; i++) {
