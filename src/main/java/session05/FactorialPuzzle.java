@@ -8,7 +8,7 @@ import java.util.stream.*;
 
 public class FactorialPuzzle {
   private static final Factorial factorial =
-      new FactorialRecursiveDecompositionParallel();
+      new FactorialRecursiveCompletableFutures();
 
   public static void main(String... args) {
     long elapsedTime = System.nanoTime();
